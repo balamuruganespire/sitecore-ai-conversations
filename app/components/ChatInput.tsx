@@ -10,10 +10,11 @@ interface Props {
 }
 
 const CHIPS = [
-  "What is Sitecore XM Cloud?",
-  "How does Experience Edge work?",
-  "Explain Headless SXA",
-  "What is Sitecore Search?",
+  "What does Espire do?",
+  "Which digital experience platforms does Espire specialize in?",
+  "What Sitecore services does Espire provide?",
+  "Can you recommend the right solution for my business?",
+  "How can I get in touch with an Espire expert?",
 ];
 
 export default function ChatInput({ onSend, onStop, isStreaming }: Props) {
@@ -29,7 +30,10 @@ export default function ChatInput({ onSend, onStop, isStreaming }: Props) {
   };
 
   const onKey = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); }
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      submit();
+    }
   };
 
   const autoResize = () => {
@@ -57,7 +61,11 @@ export default function ChatInput({ onSend, onStop, isStreaming }: Props) {
             ref={ref}
             rows={1}
             className="chat-textarea"
-            placeholder={isStreaming ? "Generating…" : "Ask anything — I remember our conversation…"}
+            placeholder={
+              isStreaming
+                ? "Generating…"
+                : "Ask anything — I remember our conversation…"
+            }
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={onKey}
@@ -66,9 +74,20 @@ export default function ChatInput({ onSend, onStop, isStreaming }: Props) {
           />
 
           {isStreaming ? (
-            <button className="send-button stop-btn-inline" onClick={onStop} title="Stop">
+            <button
+              className="send-button stop-btn-inline"
+              onClick={onStop}
+              title="Stop"
+            >
               <svg viewBox="0 0 16 16" fill="none">
-                <rect x="3" y="3" width="10" height="10" rx="2" fill="currentColor" />
+                <rect
+                  x="3"
+                  y="3"
+                  width="10"
+                  height="10"
+                  rx="2"
+                  fill="currentColor"
+                />
               </svg>
             </button>
           ) : (
@@ -79,16 +98,28 @@ export default function ChatInput({ onSend, onStop, isStreaming }: Props) {
               aria-label="Send"
             >
               <svg viewBox="0 0 24 24" fill="none">
-                <path d="M22 2L11 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M22 2L11 13"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M22 2L15 22L11 13L2 9L22 2Z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </button>
           )}
         </div>
 
         <p className="input-hint">
-          <kbd>Enter</kbd> send · <kbd>Shift+Enter</kbd> newline
-          · no conversation data stored locally
+          <kbd>Enter</kbd> send · <kbd>Shift+Enter</kbd> newline · no
+          conversation data stored locally
         </p>
       </div>
     </div>
