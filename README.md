@@ -2,6 +2,8 @@
 
 A production-ready RAG (Retrieval-Augmented Generation) chat application that grounds OpenAI GPT-4o answers with live content from **Sitecore Search (Discover)**.
 
+**Requires Node.js >= 24**
+
 ---
 
 ## Architecture
@@ -11,7 +13,7 @@ User Message
      │
      ▼
 ┌─────────────────────────────────┐
-│  Next.js 14 App Router          │
+│  Next.js 16 App Router          │
 │  /api/chat  (POST)              │
 └────────────┬────────────────────┘
              │
@@ -30,6 +32,10 @@ Sitecore Search    OpenAI GPT-4o
 ---
 
 ## Quick Start
+
+### Prerequisites
+
+- **Node.js >= 24** ([download](https://nodejs.org/))
 
 ### 1. Install dependencies
 
@@ -149,11 +155,13 @@ Edit `lib/sitecoreSearch.ts` to match your widget's `rfk_id` and field mappings.
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | Next.js 14 (App Router) |
-| Language | TypeScript |
-| AI | OpenAI GPT-4o via `openai` SDK |
-| Search | Sitecore Search (Discover) REST API |
-| Styling | Plain CSS (no Tailwind dependency) |
-| Fonts | Inter + JetBrains Mono (Google Fonts) |
+| Layer     | Technology                                        |
+| --------- | ------------------------------------------------- |
+| Framework | Next.js 16 (App Router)                           |
+| Runtime   | Node.js >= 24                                     |
+| Language  | TypeScript 5                                      |
+| UI        | React 19                                          |
+| AI        | OpenAI GPT-4o via `openai` ^4.52                  |
+| Search    | Sitecore Search SDK `@sitecore-search/react` ^3.0 |
+| Styling   | Plain CSS (no Tailwind dependency)                |
+| Fonts     | Inter + JetBrains Mono (Google Fonts)             |
