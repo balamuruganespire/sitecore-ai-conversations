@@ -56,6 +56,7 @@ export default function ChatWidget({ open, onClose }: Props) {
   ]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
+  const [maximized, setMaximized] = useState(false);
   const [tab, setTab] = useState<"chat" | "search">("chat");
   const [searchQuery, setSearchQuery] = useState("");
   const [useSearch, setUseSearch] = useState(true);
@@ -210,7 +211,7 @@ export default function ChatWidget({ open, onClose }: Props) {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="w-panel">
+      <div className={`w-panel${maximized ? " maximized" : ""}`}>
         {/* Header */}
         <div className="w-header">
           <div className="w-header-left">
@@ -272,6 +273,33 @@ export default function ChatWidget({ open, onClose }: Props) {
               <span className="w-toggle-pill" />
               <span className="w-toggle-label">Search</span>
             </label>
+            <button
+              className="w-icon-btn"
+              onClick={() => setMaximized((m) => !m)}
+              title={maximized ? "Restore" : "Maximize"}
+            >
+              {maximized ? (
+                <svg viewBox="0 0 20 20" fill="none">
+                  <path
+                    d="M13 3l-4 4M9 3h4v4M7 17l4-4M11 17H7v-4"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 20 20" fill="none">
+                  <path
+                    d="M3 8V3h5M3 3l5 5M17 12v5h-5M17 17l-5-5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
+            </button>
             <button className="w-icon-btn" onClick={onClose} title="Close">
               <svg viewBox="0 0 20 20" fill="none">
                 <path

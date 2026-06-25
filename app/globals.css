@@ -252,8 +252,13 @@ button { cursor:pointer; font-family:var(--font); }
   background:var(--surface); border-radius:20px;
   box-shadow:var(--shadow-lg); display:flex; flex-direction:column; overflow:hidden;
   animation:slideUp .25s cubic-bezier(.34,1.2,.64,1);
+  transition:width .2s ease, height .2s ease;
 }
 @keyframes slideUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+.w-panel.maximized {
+  width:calc(100vw - 48px); height:calc(100vh - 48px);
+  max-height:none; transition:width .2s ease, height .2s ease;
+}
 
 /* Header */
 .w-header {
