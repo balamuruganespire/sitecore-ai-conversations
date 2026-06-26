@@ -46,14 +46,15 @@ export default function HomePage() {
             Powered by GPT-4o + Sitecore Search
           </div>
           <h1 className="lp-hero-h1">
-            Your content.
+            Transform your digital experience.
             <br />
-            <em>Conversations that find it.</em>
+            <em>Answers powered by your content.</em>
           </h1>
           <p className="lp-hero-sub">
-            Let visitors ask follow-up questions, dive deeper, and discover
-            information naturally — all grounded exclusively in your Sitecore
-            content. No hallucinations. No third-party data.
+            Espire's AI Conversations layer sits on top of your Sitecore XM
+            Cloud stack — letting site visitors ask natural questions and get
+            instant, cited answers drawn exclusively from your indexed content.
+            No hallucinations. No leaving the site to search.
           </p>
           <div className="lp-hero-actions">
             <button
@@ -341,10 +342,13 @@ export default function HomePage() {
 
       {/* ── CTA ──────────────────────────────────────────────────────────── */}
       <section className="lp-cta">
-        <h2 className="lp-cta-h2">See it answer with your content.</h2>
+        <h2 className="lp-cta-h2">
+          Ready to elevate your Sitecore experience?
+        </h2>
         <p className="lp-cta-sub">
-          No demo request needed. Open the widget and start asking about your
-          Sitecore setup right now.
+          Built by Espire — a Sitecore Platinum Partner with 20+ years of
+          digital transformation expertise. Open the widget and see it answer
+          from your content right now.
         </p>
         <button
           className="lp-btn-primary lp-btn-lg"
