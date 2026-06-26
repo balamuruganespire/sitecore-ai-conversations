@@ -384,7 +384,7 @@ export default function HomePage() {
           onClick={() => setWidgetOpen(true)}
           aria-label="Open AI chat"
         >
-          <svg color="inherit" viewBox="0 0 32 32" class="css-1mpchac">
+          <svg color="inherit" viewBox="0 0 32 32" className="css-1mpchac">
             <path
               fill="#FFFFFF"
               d="M12.63,26.46H8.83a6.61,6.61,0,0,1-6.65-6.07,89.05,89.05,0,0,1,0-11.2A6.5,6.5,0,0,1,8.23,3.25a121.62,121.62,0,0,1,15.51,0A6.51,6.51,0,0,1,29.8,9.19a77.53,77.53,0,0,1,0,11.2,6.61,6.61,0,0,1-6.66,6.07H19.48L12.63,31V26.46"
