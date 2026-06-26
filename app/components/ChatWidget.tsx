@@ -147,13 +147,28 @@ export default function ChatWidget({ open, onClose }: Props) {
                   return c;
                 });
               }
-              if (evt.type === "done" || evt.type === "error") {
+              if (evt.type === "done") {
                 setMessages((prev) => {
                   const c = [...prev];
                   c[c.length - 1] = {
                     ...c[c.length - 1],
                     isStreaming: false,
                     feedback: null,
+                  };
+                  return c;
+                });
+                setStreaming(false);
+              }
+              if (evt.type === "error") {
+                setMessages((prev) => {
+                  const c = [...prev];
+                  c[c.length - 1] = {
+                    ...c[c.length - 1],
+                    isStreaming: false,
+                    feedback: null,
+                    content:
+                      c[c.length - 1].content ||
+                      `⚠️ ${evt.message}`,
                   };
                   return c;
                 });
