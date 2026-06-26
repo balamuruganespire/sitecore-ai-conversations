@@ -1,6 +1,7 @@
-// app/page.tsx — Marketing landing page (AddSearch-style)
+// app/page.tsx — Espire.com themed landing page
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import ChatWidget from "./components/ChatWidget";
 
 export default function HomePage() {
@@ -8,22 +9,21 @@ export default function HomePage() {
 
   return (
     <div className="lp-root">
-      {/* ── Nav ──────────────────────────────────────────────────────────── */}
+      {/* ── Nav (dark navy — espire.com) ──────────────────────────────────── */}
       <nav className="lp-nav">
         <div className="lp-nav-inner">
           <div className="lp-logo">
-            <svg viewBox="0 0 28 28" fill="none" className="lp-logo-icon">
-              <rect width="28" height="28" rx="7" fill="#EF4135" />
-              <path
-                d="M7 14c0-3.9 3.1-7 7-7s7 3.1 7 7-3.1 7-7 7"
-                stroke="#fff"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-              />
-              <circle cx="14" cy="14" r="2.5" fill="#fff" />
-            </svg>
-            <span className="lp-logo-name">Espire</span>
-            <span className="lp-logo-tag">AI Conversations</span>
+            <Image
+              src="/espire-logo.png"
+              alt="Espire Infolabs"
+              className="lp-logo-img"
+              width={120}
+              height={34}
+              style={{ objectFit: "contain" }}
+              priority
+            />
+            {/* <div className="lp-logo-divider" />
+            <span className="lp-logo-tag">AI Conversations</span> */}
           </div>
           <div className="lp-nav-links">
             <a href="#features">Features</a>
@@ -39,158 +39,160 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* ── Hero ─────────────────────────────────────────────────────────── */}
+      {/* ── Hero (navy bg with diagonal clip) ────────────────────────────── */}
       <section className="lp-hero">
-        <div className="lp-hero-eyebrow">
-          Powered by GPT-4o + Sitecore Search
-        </div>
-        <h1 className="lp-hero-h1">
-          Your content.
-          <br />
-          <em>Conversations that find it.</em>
-        </h1>
-        <p className="lp-hero-sub">
-          Let visitors ask follow-up questions, dive deeper, and discover
-          information naturally — all grounded exclusively in your Sitecore
-          content. No hallucinations. No third-party data.
-        </p>
-        <div className="lp-hero-actions">
-          <button
-            className="lp-btn-primary lp-btn-lg"
-            onClick={() => setWidgetOpen(true)}
-          >
-            Start a conversation
-          </button>
-          <a href="#how" className="lp-btn-ghost">
-            See how it works
-          </a>
-        </div>
-
-        {/* Simulated chat preview */}
-        <div className="lp-hero-preview">
-          <div className="lp-preview-bar">
-            <div className="lp-preview-dots">
-              <span />
-              <span />
-              <span />
-            </div>
-            <span className="lp-preview-title">AI Conversations</span>
+        <div className="lp-hero-inner">
+          <div className="lp-hero-eyebrow">
+            Powered by GPT-4o + Sitecore Search
           </div>
-          <div className="lp-preview-body">
-            <div className="lp-preview-msg assistant">
-              <div className="lp-preview-avatar">
-                <svg viewBox="0 0 20 20" fill="none">
-                  <rect
-                    x="2"
-                    y="5"
-                    width="16"
-                    height="11"
-                    rx="2"
-                    stroke="currentColor"
-                    strokeWidth="1.3"
-                  />
-                  <circle cx="7" cy="10.5" r="1.3" fill="currentColor" />
-                  <circle cx="13" cy="10.5" r="1.3" fill="currentColor" />
-                  <path
-                    d="M7 4V2.5M13 4V2.5"
-                    stroke="currentColor"
-                    strokeWidth="1.3"
-                    strokeLinecap="round"
-                  />
-                </svg>
+          <h1 className="lp-hero-h1">
+            Your content.
+            <br />
+            <em>Conversations that find it.</em>
+          </h1>
+          <p className="lp-hero-sub">
+            Let visitors ask follow-up questions, dive deeper, and discover
+            information naturally — all grounded exclusively in your Sitecore
+            content. No hallucinations. No third-party data.
+          </p>
+          <div className="lp-hero-actions">
+            <button
+              className="lp-btn-primary lp-btn-lg"
+              onClick={() => setWidgetOpen(true)}
+            >
+              Start a conversation
+            </button>
+            <a href="#how" className="lp-btn-ghost">
+              See how it works
+            </a>
+          </div>
+
+          {/* Simulated chat preview */}
+          <div className="lp-hero-preview">
+            <div className="lp-preview-bar">
+              <div className="lp-preview-dots">
+                <span />
+                <span />
+                <span />
               </div>
-              <div className="lp-preview-bubble">
-                Hi! Ask me anything about your Sitecore platform. I only answer
-                from your actual content.
-              </div>
+              <span className="lp-preview-title">AI Conversations</span>
             </div>
-            <div className="lp-preview-msg user">
-              <div className="lp-preview-bubble user">
-                How does Experience Edge publishing work?
+            <div className="lp-preview-body">
+              <div className="lp-preview-msg assistant">
+                <div className="lp-preview-avatar">
+                  <svg viewBox="0 0 20 20" fill="none">
+                    <rect
+                      x="2"
+                      y="5"
+                      width="16"
+                      height="11"
+                      rx="2"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                    />
+                    <circle cx="7" cy="10.5" r="1.3" fill="currentColor" />
+                    <circle cx="13" cy="10.5" r="1.3" fill="currentColor" />
+                    <path
+                      d="M7 4V2.5M13 4V2.5"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </div>
+                <div className="lp-preview-bubble">
+                  Hi! Ask me anything about your Sitecore platform. I only
+                  answer from your actual content.
+                </div>
               </div>
-            </div>
-            <div className="lp-preview-msg assistant">
-              <div className="lp-preview-avatar">
-                <svg viewBox="0 0 20 20" fill="none">
-                  <rect
-                    x="2"
-                    y="5"
-                    width="16"
-                    height="11"
-                    rx="2"
-                    stroke="currentColor"
-                    strokeWidth="1.3"
-                  />
-                  <circle cx="7" cy="10.5" r="1.3" fill="currentColor" />
-                  <circle cx="13" cy="10.5" r="1.3" fill="currentColor" />
-                  <path
-                    d="M7 4V2.5M13 4V2.5"
-                    stroke="currentColor"
-                    strokeWidth="1.3"
-                    strokeLinecap="round"
-                  />
-                </svg>
+              <div className="lp-preview-msg user">
+                <div className="lp-preview-bubble user">
+                  How does Experience Edge publishing work?
+                </div>
               </div>
-              <div className="lp-preview-bubble">
-                Experience Edge uses a GraphQL delivery layer that caches
-                published Sitecore items at the edge. When you publish in XM
-                Cloud, items propagate to Edge within seconds…
-                <div className="lp-preview-source">
-                  [Source 1] XM Cloud Publishing Guide
+              <div className="lp-preview-msg assistant">
+                <div className="lp-preview-avatar">
+                  <svg viewBox="0 0 20 20" fill="none">
+                    <rect
+                      x="2"
+                      y="5"
+                      width="16"
+                      height="11"
+                      rx="2"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                    />
+                    <circle cx="7" cy="10.5" r="1.3" fill="currentColor" />
+                    <circle cx="13" cy="10.5" r="1.3" fill="currentColor" />
+                    <path
+                      d="M7 4V2.5M13 4V2.5"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </div>
+                <div className="lp-preview-bubble">
+                  Experience Edge uses a GraphQL delivery layer that caches
+                  published Sitecore items at the edge. When you publish in XM
+                  Cloud, items propagate to Edge within seconds…
+                  <div className="lp-preview-source">
+                    [Source 1] XM Cloud Publishing Guide
+                  </div>
+                </div>
+              </div>
+              <div className="lp-preview-msg user">
+                <div className="lp-preview-bubble user">
+                  And what about ISR revalidation?
+                </div>
+              </div>
+              <div className="lp-preview-msg assistant typing">
+                <div className="lp-preview-avatar">
+                  <svg viewBox="0 0 20 20" fill="none">
+                    <rect
+                      x="2"
+                      y="5"
+                      width="16"
+                      height="11"
+                      rx="2"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                    />
+                    <circle cx="7" cy="10.5" r="1.3" fill="currentColor" />
+                    <circle cx="13" cy="10.5" r="1.3" fill="currentColor" />
+                    <path
+                      d="M7 4V2.5M13 4V2.5"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </div>
+                <div className="lp-preview-bubble">
+                  <span className="lp-typing-dot" />
+                  <span className="lp-typing-dot" />
+                  <span className="lp-typing-dot" />
                 </div>
               </div>
             </div>
-            <div className="lp-preview-msg user">
-              <div className="lp-preview-bubble user">
-                And what about ISR revalidation?
-              </div>
-            </div>
-            <div className="lp-preview-msg assistant typing">
-              <div className="lp-preview-avatar">
+            <div className="lp-preview-input">
+              <span className="lp-preview-placeholder">Ask a follow-up…</span>
+              <div className="lp-preview-send">
                 <svg viewBox="0 0 20 20" fill="none">
-                  <rect
-                    x="2"
-                    y="5"
-                    width="16"
-                    height="11"
-                    rx="2"
-                    stroke="currentColor"
-                    strokeWidth="1.3"
-                  />
-                  <circle cx="7" cy="10.5" r="1.3" fill="currentColor" />
-                  <circle cx="13" cy="10.5" r="1.3" fill="currentColor" />
                   <path
-                    d="M7 4V2.5M13 4V2.5"
+                    d="M18 2L9 11"
                     stroke="currentColor"
-                    strokeWidth="1.3"
+                    strokeWidth="1.6"
                     strokeLinecap="round"
+                  />
+                  <path
+                    d="M18 2l-5 16-4-7-7-4 16-5z"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinejoin="round"
                   />
                 </svg>
               </div>
-              <div className="lp-preview-bubble">
-                <span className="lp-typing-dot" />
-                <span className="lp-typing-dot" />
-                <span className="lp-typing-dot" />
-              </div>
-            </div>
-          </div>
-          <div className="lp-preview-input">
-            <span className="lp-preview-placeholder">Ask a follow-up…</span>
-            <div className="lp-preview-send">
-              <svg viewBox="0 0 20 20" fill="none">
-                <path
-                  d="M18 2L9 11"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M18 2l-5 16-4-7-7-4 16-5z"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  strokeLinejoin="round"
-                />
-              </svg>
             </div>
           </div>
         </div>
@@ -198,7 +200,7 @@ export default function HomePage() {
 
       {/* ── Trust bar ─────────────────────────────────────────────────────── */}
       <div className="lp-trust">
-        <span className="lp-trust-label">Trusted by teams at</span>
+        <span className="lp-trust-label">Trusted by teams using</span>
         {[
           "XM Cloud",
           "Headless SXA",
@@ -230,7 +232,7 @@ export default function HomePage() {
               {
                 icon: "🧠",
                 title: "Full conversation memory",
-                body: "Each turn remembers what came before. Follow-ups like &lsquo;tell me more&rsquo; and &lsquo;what about that?&rsquo; resolve naturally without re-explaining.",
+                body: "Each turn remembers what came before. Follow-ups like 'tell me more' resolve naturally without re-explaining.",
               },
               {
                 icon: "⚡",
@@ -356,20 +358,19 @@ export default function HomePage() {
       <footer className="lp-footer">
         <div className="lp-footer-inner">
           <div className="lp-logo">
-            <svg viewBox="0 0 28 28" fill="none" className="lp-logo-icon">
-              <rect width="28" height="28" rx="7" fill="#EF4135" />
-              <path
-                d="M7 14c0-3.9 3.1-7 7-7s7 3.1 7 7-3.1 7-7 7"
-                stroke="#fff"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-              />
-              <circle cx="14" cy="14" r="2.5" fill="#fff" />
-            </svg>
-            <span className="lp-logo-name">Espire AI Conversations</span>
+            <Image
+              src="/espire-logo.png"
+              alt="Espire Infolabs"
+              width={100}
+              height={28}
+              style={{
+                objectFit: "contain",
+                filter: "brightness(0) invert(1)",
+              }}
+            />
           </div>
           <p className="lp-footer-copy">
-            Built with Next.js 14, OpenAI GPT-4o, and Sitecore Search SDK
+            Built with Next.js, OpenAI GPT-4o, and Sitecore Search SDK
           </p>
         </div>
       </footer>
@@ -377,23 +378,23 @@ export default function HomePage() {
       {/* ── Floating chat widget ──────────────────────────────────────────── */}
       <ChatWidget open={widgetOpen} onClose={() => setWidgetOpen(false)} />
 
-      {/* Floating trigger button */}
       {!widgetOpen && (
         <button
           className="lp-widget-fab"
           onClick={() => setWidgetOpen(true)}
           aria-label="Open AI chat"
         >
-          <svg viewBox="0 0 24 24" fill="none">
+          <svg color="inherit" viewBox="0 0 32 32" class="css-1mpchac">
             <path
-              d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
-              fill="currentColor"
-            />
-            <circle cx="8.5" cy="11" r="1" fill="white" />
-            <circle cx="12" cy="11" r="1" fill="white" />
-            <circle cx="15.5" cy="11" r="1" fill="white" />
+              fill="#FFFFFF"
+              d="M12.63,26.46H8.83a6.61,6.61,0,0,1-6.65-6.07,89.05,89.05,0,0,1,0-11.2A6.5,6.5,0,0,1,8.23,3.25a121.62,121.62,0,0,1,15.51,0A6.51,6.51,0,0,1,29.8,9.19a77.53,77.53,0,0,1,0,11.2,6.61,6.61,0,0,1-6.66,6.07H19.48L12.63,31V26.46"
+            ></path>
+            <path
+              fill="#0066FF"
+              d="M19.57,21.68h3.67a2.08,2.08,0,0,0,2.11-1.81,89.86,89.86,0,0,0,0-10.38,1.9,1.9,0,0,0-1.84-1.74,113.15,113.15,0,0,0-15,0A1.9,1.9,0,0,0,6.71,9.49a74.92,74.92,0,0,0-.06,10.38,2,2,0,0,0,2.1,1.81h3.81V26.5Z"
+              className="css-1w8g9rn eam5rsy0"
+            ></path>
           </svg>
-          <span>Ask AI</span>
         </button>
       )}
     </div>
