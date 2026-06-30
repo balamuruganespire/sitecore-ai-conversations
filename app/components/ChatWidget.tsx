@@ -6,6 +6,8 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import type { ConversationTurn, SSEEvent } from "../api/chat/route";
 import { SitecoreSearchResult } from "@/lib/sitecoreSearch";
 
+const SEARCH_PAGE_SIZE = 10;
+
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -60,6 +62,15 @@ export default function ChatWidget({ open, onClose }: Props) {
   const [tab, setTab] = useState<"chat" | "search">("chat");
   const [searchQuery, setSearchQuery] = useState("");
   const [useSearch, setUseSearch] = useState(true);
+  const [searchResults, setSearchResults] = useState<SitecoreSearchResult[]>(
+    [],
+  );
+  const [searchTotal, setSearchTotal] = useState(0);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchLoadingMore, setSearchLoadingMore] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [searchTotalExact, setSearchTotalExact] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -206,6 +217,73 @@ export default function ChatWidget({ open, onClose }: Props) {
       prev.map((m, i) => (i === idx ? { ...m, feedback: val } : m)),
     );
   };
+
+  const runSearch = useCallback(
+    async (query: string, append = false) => {
+      if (!query.trim()) return;
+      setHasSearched(true);
+      setSearchError(null);
+      if (append) setSearchLoadingMore(true);
+      else setSearchLoading(true);
+
+      try {
+        const offset = append ? searchResults.length : 0;
+        const res = await fetch("/api/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query, limit: SEARCH_PAGE_SIZE, offset }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+
+        setSearchResults((prev) =>
+          append ? [...prev, ...data.results] : data.results,
+        );
+        setSearchTotal(data.total ?? 0);
+        setSearchTotalExact(true);
+      } catch (e) {
+        setSearchError(e instanceof Error ? e.message : String(e));
+      } finally {
+        setSearchLoading(false);
+        setSearchLoadingMore(false);
+      }
+    },
+    [searchResults.length],
+  );
+
+  // Show a chat answer's own sources instantly (no flicker/refetch of the
+  // list itself), then silently fetch the real total in the background so
+  // "Load more" can immediately carry an accurate count.
+  const viewAsSearchResults = useCallback(
+    async (query: string, sources: SitecoreSearchResult[]) => {
+      setSearchQuery(query);
+      setSearchResults(sources);
+      // Sentinel total (> results shown) so "Load more" is visible immediately,
+      // before the background fetch below resolves the real count.
+      setSearchTotal(sources.length + 1);
+      setSearchTotalExact(false);
+      setSearchError(null);
+      setHasSearched(true);
+      setTab("search");
+
+      if (!query.trim()) return;
+      try {
+        const res = await fetch("/api/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query, limit: SEARCH_PAGE_SIZE, offset: 0 }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+        setSearchResults(data.results);
+        setSearchTotal(data.total ?? sources.length);
+        setSearchTotalExact(true);
+      } catch {
+        // Keep showing the chat's own sources; total stays an estimate.
+      }
+    },
+    [],
+  );
 
   const clear = () => {
     stop();
@@ -414,8 +492,8 @@ export default function ChatWidget({ open, onClose }: Props) {
                     </div>
                   )}
 
-                  {/* Sources */}
-                  {msg.sources && msg.sources.length > 0 && (
+                  {/* Sources — shown only once the response has finished streaming */}
+                  {!msg.isStreaming && msg.sources && msg.sources.length > 0 && (
                     <div className="w-sources">
                       <div className="w-sources-label">Sources</div>
                       {msg.sources.map((s, si) => (
@@ -513,12 +591,11 @@ export default function ChatWidget({ open, onClose }: Props) {
                       <button
                         className="w-switch-search"
                         onClick={() => {
-                          setSearchQuery(
+                          const q =
                             messages
                               .filter((m) => m.role === "user")
-                              .slice(-1)[0]?.content || "",
-                          );
-                          setTab("search");
+                              .slice(-1)[0]?.content || "";
+                          viewAsSearchResults(q, msg.sources || []);
                         }}
                       >
                         <svg viewBox="0 0 14 14" fill="none">
@@ -555,46 +632,90 @@ export default function ChatWidget({ open, onClose }: Props) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search your Sitecore content…"
-                onKeyDown={(e) => e.key === "Enter" && send(searchQuery)}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && runSearch(searchQuery)
+                }
               />
-              <button className="w-search-go" onClick={() => send(searchQuery)}>
+              <button
+                className="w-search-go"
+                onClick={() => runSearch(searchQuery)}
+                disabled={searchLoading || !searchQuery.trim()}
+              >
                 Search
               </button>
             </div>
             <div className="w-search-note">
-              Results are grounded in your Sitecore index. Switch back to Chat
-              to ask follow-up questions.
+              Results are queried directly from your Sitecore Search index —
+              this tab stays put while you search.
+              {hasSearched && !searchLoading && !searchError && searchTotalExact && (
+                <span className="w-search-count">
+                  {" "}
+                  {searchTotal} result{searchTotal === 1 ? "" : "s"} found
+                </span>
+              )}
             </div>
-            {messages
-              .filter((m) => m.role === "assistant" && m.sources?.length)
-              .slice(-1)
-              .map((m, i) => (
-                <div key={i} className="w-search-results">
-                  {m.sources!.map((s, si) => (
-                    <a
-                      key={si}
-                      href={s.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-search-result"
-                    >
-                      {s.type && (
-                        <span className="w-result-type">{s.type}</span>
-                      )}
-                      <div className="w-result-title">{s.title}</div>
-                      {s.description && (
-                        <div className="w-result-desc">
-                          {s.description.slice(0, 160)}…
-                        </div>
-                      )}
-                      <div className="w-result-url">{s.url}</div>
-                    </a>
-                  ))}
+
+            {searchError && (
+              <div className="w-search-empty w-search-error">
+                ⚠️ {searchError}
+              </div>
+            )}
+
+            {searchLoading && (
+              <div className="w-search-empty">Searching…</div>
+            )}
+
+            {!searchLoading && !searchError && searchResults.length > 0 && (
+              <div className="w-search-results">
+                {searchResults.map((s, si) => (
+                  <a
+                    key={`${s.id}-${si}`}
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-search-result"
+                  >
+                    {s.type && (
+                      <span className="w-result-type">{s.type}</span>
+                    )}
+                    <div className="w-result-title">{s.title}</div>
+                    {s.description && (
+                      <div className="w-result-desc">
+                        {s.description.slice(0, 160)}…
+                      </div>
+                    )}
+                    <div className="w-result-url">{s.url}</div>
+                  </a>
+                ))}
+                {searchResults.length < searchTotal && (
+                  <button
+                    className="w-load-more"
+                    onClick={() => runSearch(searchQuery, true)}
+                    disabled={searchLoadingMore}
+                  >
+                    {searchLoadingMore
+                      ? "Loading…"
+                      : searchTotalExact
+                        ? `Load more (${searchResults.length} of ${searchTotal})`
+                        : "Load more"}
+                  </button>
+                )}
+              </div>
+            )}
+
+            {!searchLoading &&
+              !searchError &&
+              hasSearched &&
+              searchResults.length === 0 && (
+                <div className="w-search-empty">
+                  No results found for "{searchQuery}".
                 </div>
-              ))}
-            {!messages.some((m) => m.sources?.length) && (
+              )}
+
+            {!hasSearched && !searchLoading && (
               <div className="w-search-empty">
-                Ask a question in Chat first to see search results here.
+                Search your Sitecore content directly — results appear here
+                without leaving this tab.
               </div>
             )}
           </div>

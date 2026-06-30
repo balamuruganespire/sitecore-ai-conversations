@@ -692,7 +692,7 @@ button {
   color: #fff;
   border: none;
   border-radius: 4px;
-  padding: 13px 22px;
+  padding: 18px 18px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1337,6 +1337,13 @@ button {
   color: var(--ink-muted);
   padding: 10px 14px;
 }
+.w-search-count {
+  font-weight: 700;
+  color: var(--navy);
+}
+.w-search-error {
+  color: var(--red-dark);
+}
 .w-search-results {
   display: flex;
   flex-direction: column;
@@ -1384,6 +1391,28 @@ button {
   font-size: 11px;
   color: var(--ink-muted);
   opacity: 0.7;
+}
+.w-load-more {
+  align-self: center;
+  margin-top: 4px;
+  background: none;
+  border: 1.5px solid var(--border-md);
+  border-radius: var(--r-sm);
+  padding: 8px 18px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--navy);
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.w-load-more:hover {
+  border-color: var(--red);
+  background: var(--red-dim);
+}
+.w-load-more:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 .w-search-empty {
   flex: 1;

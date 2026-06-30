@@ -35,6 +35,7 @@ export interface SitecoreSearchResponse {
   results: SitecoreSearchResult[];
   total: number;
   query: string;
+  offset: number;
 }
 
 // ── SDK init (lazy singleton, once per cold start) ─────────────────────────
@@ -70,7 +71,11 @@ function ensureSDK(): void {
 
 // ── Payload builder ────────────────────────────────────────────────────────
 
-function buildPayload(query: string, limit: number): Record<string, unknown> {
+function buildPayload(
+  query: string,
+  limit: number,
+  offset: number,
+): Record<string, unknown> {
   const rfkId =
     process.env.NEXT_PUBLIC_SEARCH_RFK_ID ||
     process.env.NEXT_PUBLIC_SEARCH_DISCOVER_DOMAIN_ID ||
@@ -90,7 +95,7 @@ function buildPayload(query: string, limit: number): Record<string, unknown> {
             query: { keyphrase: query },
             content: {},
             limit,
-            offset: 0,
+            offset,
           },
         },
       ],
@@ -147,7 +152,8 @@ function parseResults(data: Record<string, unknown>): {
  */
 export async function searchSitecore(
   query: string,
-  limit = 5
+  limit = 5,
+  offset = 0
 ): Promise<SitecoreSearchResponse> {
   ensureSDK();
 
@@ -160,7 +166,7 @@ export async function searchSitecore(
     );
   }
 
-  const payload = buildPayload(query, limit);
+  const payload = buildPayload(query, limit, offset);
   const rfkId = process.env.NEXT_PUBLIC_SEARCH_RFK_ID || "rfkid_7";
 
   console.log(
@@ -200,7 +206,7 @@ export async function searchSitecore(
   const { results, total } = parseResults(data);
 
   console.log(`[SitecoreSearch] ${results.length} results (total: ${total})`);
-  return { results, total, query };
+  return { results, total, query, offset };
 }
 
 // ── Context formatter ──────────────────────────────────────────────────────
