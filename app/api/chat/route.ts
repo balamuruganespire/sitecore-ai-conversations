@@ -72,6 +72,71 @@ function sse(e: SSEEvent) {
   return `data: ${JSON.stringify(e)}\n\n`;
 }
 
+// ── Rate-limit-aware retry helper ──────────────────────────────────────────
+// Gemini's free tier and OpenAI both return 429 on RPM/quota limits. Some
+// gateways (notably Gemini's OpenAI-compat shim) return a 429 with an empty
+// body, so we can't always read a structured error — we retry on any 429
+// with exponential backoff, respecting a Retry-After header when present.
+
+interface ApiErrorShape {
+  status?: number;
+  error?: unknown;
+  headers?: Headers | Record<string, string>;
+}
+
+function getRetryAfterMs(e: ApiErrorShape): number | null {
+  const headers = e.headers;
+  if (!headers) return null;
+  const raw =
+    typeof (headers as Headers).get === "function"
+      ? (headers as Headers).get("retry-after")
+      : (headers as Record<string, string>)["retry-after"];
+  if (!raw) return null;
+  const seconds = Number(raw);
+  return Number.isFinite(seconds) ? seconds * 1000 : null;
+}
+
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  opts: { retries?: number; baseDelayMs?: number } = {},
+): Promise<T> {
+  const { retries = 2, baseDelayMs = 1000 } = opts;
+  let lastErr: unknown;
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (e) {
+      lastErr = e;
+      const apiErr = e as ApiErrorShape;
+      if (apiErr?.status !== 429 || attempt === retries) throw e;
+
+      const retryAfterMs = getRetryAfterMs(apiErr);
+      const delay = retryAfterMs ?? baseDelayMs * 2 ** attempt;
+      console.warn(
+        `[chat] 429 received, retrying in ${delay}ms (attempt ${attempt + 1}/${retries})`,
+      );
+      await new Promise((r) => setTimeout(r, delay));
+    }
+  }
+  throw lastErr;
+}
+
+function describeApiError(e: unknown): string {
+  if (e && typeof e === "object" && "status" in e) {
+    const apiErr = e as ApiErrorShape;
+    if (apiErr.status === 429) {
+      return "We're getting rate-limited by the AI provider right now. Please wait a few seconds and try again.";
+    }
+    if (apiErr.status === 401 || apiErr.status === 403) {
+      return "The AI provider rejected the request — the API key may be invalid or revoked.";
+    }
+    const detail = apiErr.error ? JSON.stringify(apiErr.error) : undefined;
+    return `API error ${apiErr.status}${detail ? `: ${detail}` : ""}`;
+  }
+  return e instanceof Error ? e.message : String(e);
+}
+
 async function shouldSearch(
   history: ConversationTurn[],
   msg: string,
@@ -84,30 +149,10 @@ async function shouldSearch(
   )
     return false;
   if (history.length === 0) return true;
-  try {
-    const r = await openai.chat.completions.create({
-      model: AI_MODEL,
-      max_tokens: 3,
-      temperature: 0,
-      messages: [
-        {
-          role: "system",
-          content:
-            "Reply YES if the new message needs a document search (new topic/question). Reply NO if it's a follow-up or clarification of the existing discussion. Only YES or NO.",
-        },
-        {
-          role: "user",
-          content: `History (last 4):\n${history
-            .slice(-4)
-            .map((t) => `${t.role}: ${t.content.slice(0, 200)}`)
-            .join("\n")}\n\nNew: "${msg}"`,
-        },
-      ],
-    });
-    return r.choices[0]?.message?.content?.trim().toUpperCase() !== "NO";
-  } catch {
-    return true;
-  }
+  // Skip the LLM classification call entirely — just default to searching
+  // for anything that isn't a short follow-up. Saves 1 generateContent call/turn
+  // and avoids tripping low-RPM free-tier limits.
+  return true;
 }
 
 export async function POST(req: NextRequest) {
@@ -167,13 +212,19 @@ export async function POST(req: NextRequest) {
       const send = (e: SSEEvent) => ctrl.enqueue(enc.encode(sse(e)));
       try {
         if (sources.length) send({ type: "sources", sources });
-        const completion = await openai.chat.completions.create({
-          model: AI_MODEL,
-          messages: [...systemMsgs, ...historyMsgs],
-          temperature: 0.6,
-          max_tokens: 1024,
-          stream: true,
-        });
+
+        // Wrap the call creation (not the async iteration) in retry logic —
+        // 429s surface when the request is first made, before streaming starts.
+        const completion = await withRetry(() =>
+          openai.chat.completions.create({
+            model: AI_MODEL,
+            messages: [...systemMsgs, ...historyMsgs],
+            temperature: 0.6,
+            max_tokens: 1024,
+            stream: true,
+          }),
+        );
+
         for await (const chunk of completion) {
           const delta = chunk.choices[0]?.delta?.content;
           if (delta) send({ type: "token", text: delta });
@@ -181,9 +232,10 @@ export async function POST(req: NextRequest) {
             send({ type: "done" });
         }
       } catch (e) {
+        console.error("[chat] completion error:", e);
         send({
           type: "error",
-          message: e instanceof Error ? e.message : String(e),
+          message: describeApiError(e),
         });
       } finally {
         ctrl.close();
